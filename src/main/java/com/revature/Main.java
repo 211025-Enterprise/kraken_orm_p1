@@ -7,6 +7,6 @@ public class Main {
 	public static void main(String[] args) {
 		ObjectDao<CoolClass> dao = new ObjectDao<CoolClass>(CoolClass.class);
 		CoolClass coolObject = new CoolClass();
-		dao.create(coolObject);
+		//dao.create(coolObject);
 	}
 }

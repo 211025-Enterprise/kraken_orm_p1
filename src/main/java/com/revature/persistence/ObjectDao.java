@@ -21,7 +21,7 @@ public class ObjectDao<T> {
 
 	public ObjectDao(Class<T> type) {
 		this.objectClass = type;
-		this.tableName = type.getSimpleName();
+		this.tableName = type.getSimpleName().toLowerCase();
 		this.fields = type.getDeclaredFields();
 		this.methods = type.getDeclaredMethods();
 		for (int i=0; i<this.fields.length; i++) {
@@ -30,9 +30,10 @@ public class ObjectDao<T> {
 		for (int i=0; i<this.methods.length; i++) {
 			this.methods[i].setAccessible(true);
 		}
-		StringBuffer sqlBuff = new StringBuffer("create table if not exists ");
-		sqlBuff.append(this.tableName).append(" (");
+
 		this.columnNames = new ArrayList<String>();
+		this.columnGetters = new ArrayList<Method>();
+		this.columnSetters = new ArrayList<Method>();
 		for (int i=0; i<this.fields.length; i++) {
 			if (this.javaToSqlType(this.fields[i].getType()) != "") {
 				Boolean hasGetter = false;
@@ -53,6 +54,13 @@ public class ObjectDao<T> {
 				}
 				this.columnNames.add(this.fields[i].getName().toLowerCase());
 
+			}
+		}
+
+		StringBuffer sqlBuff = new StringBuffer("create table if not exists ");
+		sqlBuff.append(this.tableName).append(" (");
+		for (int i=0; i<this.fields.length; i++) {
+			if (this.javaToSqlType(this.fields[i].getType()) != "") {
 				sqlBuff.append(this.columnNames.get(i)).append(" ").append(this.javaToSqlType(this.fields[i].getType()));
 				if (i < this.columnNames.size() - 1) {
 					sqlBuff.append(", ");
@@ -61,12 +69,14 @@ public class ObjectDao<T> {
 				}
 			}
 		}
+
 		String sql = sqlBuff.toString();
 		try (Connection connection = ConnectionSingleton.getConnection()) {
 			assert connection != null;
 			PreparedStatement stmt = connection.prepareStatement(sql);
 			stmt.executeUpdate();
 		} catch (Exception e) {
+			System.out.println("Attempted sql statement: " + sql);
 			System.out.println("Table creation error");
 			e.printStackTrace();
 		}
