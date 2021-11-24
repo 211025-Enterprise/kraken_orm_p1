@@ -1,8 +1,14 @@
 package com.revature;
 
+import com.revature.PKeyAnnotation;
+
 public class CoolClass {
+
 	private int awesomeInt;
+
+	@PKeyAnnotation
 	public String epicString;
+
 	protected static Boolean coolBool;
 
 	public CoolClass () {
@@ -17,7 +23,7 @@ public class CoolClass {
 		this.awesomeInt = a;
 	}
 
-	private String getEpicString () {
+	public String getEpicString () {
 		return this.epicString;
 	}
 
